@@ -1,0 +1,1 @@
+{"version":3,"file":"AttributeModifier.d.ts","sourceRoot":"","sources":["../../../src/core/world/AttributeModifier.ts"],"names":[],"mappings":"AAAA,oBAAY,0BAA0B;IACrC,QAAQ,IAAA;IACR,aAAa,IAAA;IACb,cAAc,IAAA;CACd;AAED,MAAM,WAAW,iBAAiB;IACjC,QAAQ,CAAC,MAAM,EAAE,MAAM,CAAA;IACvB,QAAQ,CAAC,SAAS,EAAE,0BAA0B,CAAA;CAC9C"}
