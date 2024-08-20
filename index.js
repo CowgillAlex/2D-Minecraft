@@ -81,7 +81,8 @@ const sprites = {
 };
 Utils.log("log", "[Base] Constructing Project")
 const project = new Project(stage, sprites, {
-  frameRate: 60, // Set to 60 to make your project run faster, yes
+  frameRate: 60, //Most monitors are at this frame rate
+
 });
 Utils.log("log", "[Base] Setting framerate to 60 from 30")
 export default project;

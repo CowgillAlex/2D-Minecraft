@@ -3,7 +3,7 @@
 
 <head>
   <link rel="stylesheet" href="https://unpkg.com/leopard@^1/dist/index.min.css" />
-  <title>Paper Minecraft 24w34a</title>
+  <title>Paper Minecraft 24w34b</title>
   <style>
     @font-face {
       font-family: 'Minecraft';
@@ -45,14 +45,14 @@
 
 <body>
   <noscript>
-    <div class="no-js-message">
+    
       JavaScript is not enabled in your browser. Sadly, it is a necessary part of this site, so please enable JavaScript
       to use this site.
-    </div>
+    
   </noscript>
   <p id="Pos" class="not-selectable"
     style="position: absolute; top: 10px; left: 10px; z-index: 1000; background-color: rgba(54, 58, 66, 0.9); color: white; padding: 10px; border: none; cursor: pointer;">
-    MCSE 24w34a</p>
+    MCSE 24w34b (alpha)</p>
   <p id="coordinatesXY" class="not-selectable"
     style="position: absolute; top: 55px; left: 10px; z-index: 1000; background-color: rgba(54, 58, 66, 0.9); color: white; padding: 10px; border: none; cursor: pointer;">
     XY: Await Coordinates</p>
@@ -70,7 +70,90 @@
   <script type="module">
     
     import project from "./index.js";
+    import Utils from './Utilities/utils.js'
+    import Player from "./Sprites/Player/player.js"
+    import State from "./state.js"
+    
+    window.onerror = function(message, source, lineno, colno, error) {
+    // Log the error details
+    Utils.log("error", "Something went wrong: " + message);
+    Utils.log("error", "On line: " + lineno + " of " + source);
 
+    // Create a dialog element if it doesn't exist
+    let errorDialog = document.getElementById('error-dialog');
+    if (!errorDialog) {
+        errorDialog = document.createElement('dialog');
+        errorDialog.id = 'error-dialog';
+        document.body.appendChild(errorDialog);
+    }
+
+    // Create an error message with detailed information
+    let errorMessage = "<strong>Error:</strong> " + message + "<br>" +
+                       "<strong>Source:</strong> " + source + "<br>" +
+                       "<strong>Line:</strong> " + lineno + ", Column: " + colno + "<br>" +
+                       "<strong>Stack Trace:</strong><br>" + 
+                       (error && error.stack ? error.stack.replace(/\n/g, '<br>') : 'No stack trace available');
+
+    // Set the content of the dialog
+    errorDialog.innerHTML = `
+    <div style="padding: 20px; max-width: 500px; user-select: text; -webkit-user-select: text; -moz-user-select: text; -ms-user-select: text;">
+      <br><br>
+      <h2>Oh no! Minecraft Crashed :(</h2>
+      <h3>Please submit a Github Bug report <a href="https://github.com/CowgillAlex/2D-Minecraft/issues">here</a> so we can fix this</h3>
+
+      
+      ${errorMessage}
+        <br><br>
+        <h3>Submit a report <a href="https://github.com/CowgillAlex/2D-Minecraft/issues">here</a></h3>
+        
+    </div>
+`;
+
+
+    // Show the dialog
+    errorDialog.showModal();
+
+    // Handle the close button click
+    
+
+    // Override common asynchronous and timing functions
+    window.setTimeout = window.setInterval = function() { return; };
+    window.requestAnimationFrame = function() { return; };
+    
+    // Override Promise methods to prevent further execution
+    const noopPromise = {
+        then: function() { return this; },
+        catch: function() { return this; },
+        finally: function() { return this; }
+    };
+    window.Promise = function() { return noopPromise; };
+    window.Promise.resolve = function() { return noopPromise; };
+    window.Promise.reject = function() { return noopPromise; };
+    window.Promise.all = function() { return noopPromise; };
+    window.Promise.race = function() { return noopPromise; };
+    
+    // Disable XHR and Fetch
+    window.XMLHttpRequest = function() { return { open: function() {}, send: function() {} }; };
+    window.fetch = function() { return new Promise(() => {}); };
+
+    // Disable event listeners and DOM interactions
+    window.addEventListener = document.addEventListener = function() { return; };
+    window.removeEventListener = document.removeEventListener = function() { return; };
+    document.querySelectorAll('*').forEach(function(element) {
+        element.onclick = element.onchange = element.oninput = element.onsubmit = function() { return; };
+        //element.style.pointerEvents = 'none';  // Disable interactions
+    });
+    
+
+    // Disable console.log to prevent further logging
+    console.log = console.warn = console.error = console.info = function() {};
+    State.crash();
+
+    // Throw a new error to halt further synchronous execution
+    throw new Error("Execution halted due to critical error.");
+};
+
+    
     project.attach("#project");
 
 

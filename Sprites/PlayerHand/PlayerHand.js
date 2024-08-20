@@ -10,6 +10,7 @@ import {
 } from "../../cdn.js";
 import Utils from "../../Utilities/utils.js";
 import {isLeftClickDown, isRightClickDown} from "../../Utilities/mouse.js"
+import State from "../../state.js";
 
 export default class PlayerHand extends Sprite {
   constructor(...args) {
@@ -50,7 +51,7 @@ export default class PlayerHand extends Sprite {
   }
   
   *whenIReceivePositionTiles() {
-    
+    if (!this.sprites["Player"].vars.stopExecution){
     this.goto(this.sprites["Player"].x, this.sprites["Player"].y);
     this.y += this.sprites["Block"].vars.Tilemovestep/4;
     this.moveAhead();
@@ -78,6 +79,7 @@ export default class PlayerHand extends Sprite {
       this.stage.vars.world[this.vars.tileIndex-1] = "deepslate" 
     }
   }
+}
 
   *whenIReceiveCloneLevelTiles() {
     this.visible = true;
@@ -85,19 +87,32 @@ export default class PlayerHand extends Sprite {
   }
 
   *getTileAtXY(x, y) {
-    let chunk = (this.stage.vars.world)
-    this.vars.tileGridX = Math.floor(this.toNumber(x) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
-    this.vars.tileGridY = Math.floor(this.toNumber(y) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
-    this.vars.tileIndex = 1 + this.toNumber(this.vars.tileGridY) + this.toNumber(this.vars.tileGridX) * this.toNumber(this.stage.vars.gridHeight);
-    this.vars.tile = this.itemOf(this.stage.vars.grid, this.vars.tileIndex - 1);
-    this.vars.tile = this.itemOf(chunk, this.vars.tileIndex - 1);
-  
-    this.vars.costume = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) + 1 - 1);
- 
-    this.vars.tileid = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile));
-    this.vars.blockname = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) );
-    this.vars.blocktype = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) + 1 );
-    this.vars.blocksolidity = this.letterOf(this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) -1), 0);
+    
+      let chunk = (this.stage.vars.world)
+      this.vars.tileGridX = Math.floor(this.toNumber(x) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
+      this.vars.tileGridY = Math.floor(this.toNumber(y) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
+      this.vars.tileIndex = 1 + this.toNumber(this.vars.tileGridY) + this.toNumber(this.vars.tileGridX) * this.toNumber(this.stage.vars.gridHeight);
+
+      try {
+        this.vars.tile = this.itemOf(this.stage.vars.grid, this.vars.tileIndex - 1);
+
+      this.vars.tile = this.itemOf(chunk, this.vars.tileIndex - 1);
+      } catch (error) {
+        throw new Error("A block at " + this.vars.tileIndex + " is Invalid, meaning it probably doesn't have a definition, or is outside the world.")
+      }
+      
+      try {
+        this.vars.costume = this.stage.vars.blockData[this.vars.tile].costume
+      } catch (error) {
+        throw new Error("This block: [" + (this.vars.tile || "invalid") + "] has no attributes, or it is outside the world.");
+
+      }
+      
+   
+      this.vars.tileid = this.stage.vars.blockData[this.vars.tile].id;
+      this.vars.blockname = this.stage.vars.blockData[this.vars.tile].name;
+      this.vars.blocktype = this.stage.vars.blockData[this.vars.tile].type;
+      this.vars.blocksolidity = this.stage.vars.blockData[this.vars.tile].solidity;
     document.getElementById("selectedBlock").innerHTML = "Block: " + this.vars.blockname
     document.getElementById("selectedBlockSolidity").innerHTML = "Block Solidity: " + this.vars.blocksolidity
   }

@@ -35,6 +35,7 @@ export default class Block extends Sprite {
       new Costume("stone", "./Sprites/Block/costumes/stone.png", { x: 16, y: 16 }),
       new Costume("dirt", "./Sprites/Block/costumes/dirt.png", { x: 16, y: 16 }),
       new Costume("diamond_ore", "./Sprites/Block/costumes/diamond_ore.png", { x: 16, y: 16 }),
+      new Costume("water", "./Sprites/Block/costumes/water.png", {x:16, y:16})
 
     ];
 
@@ -62,7 +63,7 @@ export default class Block extends Sprite {
     this.vars.Tilemovestep = 64;
     this.vars.Tileloopcap = 208;
     this.vars.block = "air"
-    Utils.log("log", JSON.stringify(this))
+   
   }
   *indexToArrayLocation(tileIndex, columnHeight = 384) {
     // Calculate the x-coordinate (column) by integer division of tileIndex by the column height
@@ -97,8 +98,10 @@ export default class Block extends Sprite {
     //this.costume = chunk[this.vars.tileIndex]
     this.costume = this.itemOf(chunk, this.vars.tileIndex - 1);
     this.vars.tiled = this.itemOf(chunk, this.vars.tileIndex - 1);
-    this.costume = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tiled));
-
+    
+    //this.costume = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tiled));
+    //this.costume = this.stage.vars.blockData[this.vars.tiled].costume;
+    this.effects.tint += 15
     //this.costume = chunk[this.vars.tileX][this.vars.tileY]
     //this.costume = this.stage.vars.grid[pos][pos2]
     //this.stamp();
@@ -145,16 +148,10 @@ export default class Block extends Sprite {
       (this.stage.vars.cloneCountX) *
       ((this.vars.Tilemovestep) * 0.5);
     if (
-      this.compare(this.vars.tileIndex, 0) < 0 &&
-      this.compare(
-        Math.abs((this.vars.tileIndex)),
-        this.stage.vars.grid.length
-      ) > 0
+      this.vars.tileIndex < 0 && Math.abs(this.vars.tileIndex) > this.stage.vars.grid.length 
     ) {
-      this.vars.tile = this.itemOf(
-        this.stage.vars.grid,
-        this.vars.tileIndex - 1
-      );
+      this.vars.tile = this.stage.vars.grid[this.vars.tileIndex - 1]
+      
     }
     if (this.compare(x, this.vars.Tileloopcap) > 0) {
       this.vars.tileX +=

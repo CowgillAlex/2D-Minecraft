@@ -7,8 +7,11 @@ import {
   Sound,
 } from "../../cdn.js";
 import Utils from "../../Utilities/utils.js";
-import { Chunk, ChunkPos, DensityFunction, Identifier, NoiseChunkGenerator, NoiseGeneratorSettings, NoiseRouter, NoiseSettings, RandomState, WorldgenRegistries } from '../../Libraries/Deepslate/index.js'
+import { BlockState } from "../../Libraries/Deepslate/index.js";
+import Networking from '../../Utilities/networking.js'
+import { Chunk, ChunkPos, DensityFunction, Identifier, NoiseChunkGenerator, NoiseGeneratorSettings, NoiseRouter, NoiseSettings, RandomState, WorldgenRegistries, XoroshiroRandom } from '../../Libraries/Deepslate/index.js'
 import md5 from "../../Libraries/md5/md5.js"
+
 export default class Generate extends Sprite {
   constructor(...args) {
     super(...args);
@@ -37,7 +40,7 @@ export default class Generate extends Sprite {
 
 
   *fillGrid() {
-    Utils.log("log", "Md5 Hash of \"hello\" is " + md5("hello"))
+    Utils.log("log", "[Generate] Md5 Hash of \"hello\" is " + md5("hello"))
 
     this.stage.vars.gridWidth = 32 * 16
     Utils.log("log", this.stage.vars.maxColumn)
@@ -66,14 +69,14 @@ export default class Generate extends Sprite {
 
 
   *whenIReceiveGenerateLevel() {
-    Utils.log("log", "[Generate] Generating Level")
+    
     this.stage.vars.gridWidth = 16;
     this.stage.vars.gridHeight = 384
     
-    Utils.log("log", "[Generate] Filling Grid")
+    Utils.log("log", "[Generate] Generating World")
     yield* this.fillGrid();
     this.stage.vars.cameraX = 240 + this.toNumber(this.stage.vars.tileSize);
-    Utils.log("log", "[Generate] Cleaning up Generated Terrain Variables")
+    
 
   }
   *whenKeyRPressed() {
@@ -99,28 +102,47 @@ export default class Generate extends Sprite {
     this.stage.vars.world = this.stage.vars.world.concat(chunk);
   }
 }
+
 function getChunk(x) {
-  const fooNoise = WorldgenRegistries.NOISE.register(Identifier.parse('test:foo'), { firstOctave: -5, amplitudes: [0, 1, 1] });
-  const noiseSettings = NoiseSettings.create({ minY: -64, height: 384 });
-  const simpleSettings = NoiseGeneratorSettings.create({
-    seaLevel: 100,
+  Utils.log("log", "Getting chunk: " + x)
+  const fooNoise =  WorldgenRegistries.NOISE.register(Identifier.parse('test:foo'),
+  {
+    "amplitudes": [
+      1.0,
+      1.0,
+      2.0,
+      2.0,
+      2.0,
+      1.0,
+      1.0,
+      1.0,
+      1.0
+    ],
+    "firstOctave": -9
+  })
+  const noiseSettings = NoiseSettings.create({ minY: -64, height: 384 })
+   const simpleSettings = NoiseGeneratorSettings.create({
+    defaultBlock: BlockState.STONE,
+    defaultFluid: BlockState.WATER,
+    seaLevel: 63,
     noise: noiseSettings,
-   
     noiseRouter: NoiseRouter.create({
-      
-      finalDensity: new DensityFunction.Ap2('add',
-        new DensityFunction.YClampedGradient(0, 256, 1, -1.5),
-        new DensityFunction.Noise(0.1, 0.1, fooNoise)
-      ),
+        finalDensity: new DensityFunction.Ap2('add',
+            new DensityFunction.YClampedGradient(0, 256, 1, -1),
+            new DensityFunction.Noise(0.25, 0.0, fooNoise)
+        ),
     }),
-  });
+})
+  
   const randomState = new RandomState(simpleSettings, BigInt(125));
   const generator = new NoiseChunkGenerator(null, simpleSettings);
 
   const z = 0; // Fixed z-coordinate for the slice
   const chunkPos = ChunkPos.create(x * 16 >> 4, z >> 4); // Horizontal chunk position along x-axis
   const chunk = new Chunk(simpleSettings.noise.minY, simpleSettings.noise.height, chunkPos);
+ 
   generator.fill(randomState, chunk);
+  
   // 2D chunk data along x (16 blocks) and y (384 blocks) for fixed z=37
   const chunkData = Array.from({ length: simpleSettings.noise.height }, () => Array(16).fill(null));
 

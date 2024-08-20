@@ -7,11 +7,16 @@ import {
   Costume,
 } from "../../cdn.js";
 import Utils from "../../Utilities/utils.js";
-const doc = document.getElementById("coordinatesX")
+import State from "../../state.js";
+
+
+
 export default class Player extends Sprite {
+  
   constructor(...args) {
     super(...args);
-
+    this.stopExecution = false
+    //this.stage.vars.state = State.getState()
     this.costumes = [
       new Costume("Steve-STAND", "./Sprites/Player/costumes/Steve-STAND.svg", {
         x: 8.769335501618002,
@@ -89,11 +94,17 @@ export default class Player extends Sprite {
   }
  
   *whenGreenFlagClicked() {
+    if (this.stopExecution) return;
     yield* this.broadcastAndWait("Generate level");
+    if (this.stopExecution) return;
+    yield* this.wait(0);
+    if (this.stopExecution) return;
     yield* this.broadcastAndWait("Clone Level Tiles");
+    if (this.stopExecution) return;
     yield* this.resetPlayer();
+    if (this.stopExecution) return;
     yield* this.gameLoop();
-  }
+}
 
   *resetPlayer() {
     Utils.log("warn", "[Player] Resetting Player")
@@ -101,7 +112,7 @@ export default class Player extends Sprite {
     this.stage.vars.cameraX = (window.innerWidth);
     this.stage.vars.cameraY = (window.innerHeight);
     this.vars.x = 200;
-    this.vars.y = this.sprites["Block"].vars.Tilemovestep * 128;
+    this.vars.y = this.sprites["Block"].vars.Tilemovestep * 64;
 
     this.vars.height = (this.sprites["Block"].vars.Tilemovestep) - 2; //because thats the players centre
     this.vars.width = this.vars.height/4
@@ -148,7 +159,8 @@ export default class Player extends Sprite {
   }
 
   *gameLoop() {
-    while (true) {
+    while (true && !this.stopExecution) {
+      this.stopExecution = State.getState()
       this.broadcast("Move player");
       this.broadcast("Position Tiles");
       yield* this.moveCamera();
@@ -173,13 +185,13 @@ export default class Player extends Sprite {
     this.vars.tileIndex = 1 + this.toNumber(this.vars.tileGridY) + this.toNumber(this.vars.tileGridX) * this.toNumber(this.stage.vars.gridHeight);
     this.vars.tile = this.itemOf(this.stage.vars.grid, this.vars.tileIndex - 1);
     this.vars.tile = this.itemOf(chunk, this.vars.tileIndex - 1);
-
-    this.vars.costume = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) + 1 - 1);
+   
+    this.vars.costume = this.stage.vars.blockData[this.vars.tile].costume
  
-    this.vars.tileid = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile));
-    this.vars.blockname = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) );
-    this.vars.blocktype = this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) + 1 );
-    this.vars.blocksolidity = this.letterOf(this.itemOf(this.stage.vars.blockData, this.indexInArray(this.stage.vars.blockData, this.vars.tile) -1), 0);
+    this.vars.tileid = this.stage.vars.blockData[this.vars.tile].id;
+    this.vars.blockname = this.stage.vars.blockData[this.vars.tile].name;
+    this.vars.blocktype = this.stage.vars.blockData[this.vars.tile].type;
+    this.vars.blocksolidity = this.stage.vars.blockData[this.vars.tile].solidity;
   }
 
   *fixCollisionAtPointXY(x, y) {

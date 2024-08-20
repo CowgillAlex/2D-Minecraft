@@ -121,7 +121,7 @@ class i {
         return this.top - this.bottom
     }
 }
-const s = ["color", "fisheye", "whirl", "pixelate", "mosaic", "brightness", "ghost"],
+const s = ["color", "fisheye", "whirl", "pixelate", "mosaic", "brightness", "ghost", "tint"],
     n = {
         color: 1,
         fisheye: 2,
@@ -129,7 +129,8 @@ const s = ["color", "fisheye", "whirl", "pixelate", "mosaic", "brightness", "gho
         pixelate: 8,
         mosaic: 16,
         brightness: 32,
-        ghost: 64
+        ghost: 64,
+        tint: 128
     },
     r = (t, e, i) => {
         const {
@@ -166,6 +167,16 @@ const s = ["color", "fisheye", "whirl", "pixelate", "mosaic", "brightness", "gho
                 h = e / n;
             i[0] = .5 + o * a * .5, i[1] = .5 + o * h * .5
         }
+        if (0 != (r & n.tint)) {
+            // Define the tint color in RGB (example: light blue)
+            const tintColor = [0.5, 0.7, 1.0]; // R, G, B values between 0 and 1
+        
+            // i[0], i[1], and i[2] are the R, G, B values of the pixel
+            i[0] = i[0] * (1 - tintAmount) + tintColor[0] * tintAmount;
+            i[1] = i[1] * (1 - tintAmount) + tintColor[1] * tintAmount;
+            i[2] = i[2] * (1 - tintAmount) + tintColor[2] * tintAmount;
+        }
+        
         return i
     },
     o = (t, e, i) => Math.max(e, Math.min(i, t));
@@ -649,7 +660,8 @@ class b {
             pixelate: 0,
             mosaic: 0,
             brightness: 0,
-            ghost: 0
+            ghost: 0,
+            tint: 0
         };
         for (let t = 0; t < s.length; t++) {
             const e = s[t];

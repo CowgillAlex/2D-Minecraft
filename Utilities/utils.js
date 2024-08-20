@@ -1,4 +1,6 @@
 
+import { Project , Trigger, Watcher, Stage, Costume, Sprite, Color, Sound} from "../cdn.js";
+import project from "../index.js";
 class Utils {
 /**
  * 
@@ -51,6 +53,9 @@ class Utils {
     }
 
     return result;
+}
+static end(){
+  throw new Error()
 }
 
 }
