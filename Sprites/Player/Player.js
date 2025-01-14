@@ -12,7 +12,7 @@ import State from "../../state.js";
 
 
 export default class Player extends Sprite {
-  
+
   constructor(...args) {
     super(...args);
     this.stopExecution = false
@@ -61,7 +61,7 @@ export default class Player extends Sprite {
         { name: "Move player" },
         this.whenIReceiveMovePlayer
       ),
-      
+
     ];
 
     this.vars.x = 100;
@@ -90,9 +90,9 @@ export default class Player extends Sprite {
     this.doublePressThreshold = 300; // Time in milliseconds to detect a double press
     this.keyPressHandled = { right: false, left: false }; // To handle single vs. double press
     this.doublePressActive = { right: false, left: false }; // To keep track of double press state
-    
+
   }
- 
+
   *whenGreenFlagClicked() {
     if (this.stopExecution) return;
     yield* this.broadcastAndWait("Generate level");
@@ -104,7 +104,7 @@ export default class Player extends Sprite {
     yield* this.resetPlayer();
     if (this.stopExecution) return;
     yield* this.gameLoop();
-}
+  }
 
   *resetPlayer() {
     Utils.log("warn", "[Player] Resetting Player")
@@ -115,51 +115,51 @@ export default class Player extends Sprite {
     this.vars.y = this.sprites["Block"].vars.Tilemovestep * 64;
 
     this.vars.height = (this.sprites["Block"].vars.Tilemovestep) - 2; //because thats the players centre
-    this.vars.width = this.vars.height/4
+    this.vars.width = this.vars.height / 4
     //players actual height is height*2
 
 
   }
 
-*updateDebug(){
+  *updateDebug() {
 
-  document.getElementById("coordinatesXY").innerHTML = "XY: " + ((0-Math.abs(this.stage.vars.minColumn)  )*16 + this.vars.tileGridX) + " / " + (this.vars.tileGridY - 64)
- 
-}
-*offsetleft(){
-  this.vars.x  = this.vars.x + (16 * 64)
-  
-}
+    document.getElementById("coordinatesXY").innerHTML = "XY: " + ((0 - Math.abs(this.stage.vars.minColumn)) * 16 + this.vars.tileGridX) + " / " + (this.vars.tileGridY - 64)
+
+  }
+  *offsetleft() {
+    this.vars.x = this.vars.x + (16 * 64)
+
+  }
 
   *moveCamera() {
-    
-    
+
+
     this.stage.vars.cameraX = this.vars.x + this.mouse.x / 4;
     this.stage.vars.cameraY +=
-      (this.toNumber(this.vars.y) - this.toNumber(this.stage.vars.cameraY)) /
+      (this.vars.y - this.stage.vars.cameraY) /
       4 +
       this.mouse.y / 5;
     if (this.stage.vars.cameraX < (window.innerWidth / 2)) {
       this.stage.vars.cameraX = (window.innerWidth / 2);
       yield* this.sprites["Generate"].whenKeyLPressed()
-      
-      
+
+
     }
     if (this.stage.vars.cameraY < (window.innerHeight / 2)) {
       this.stage.vars.cameraY = (window.innerHeight / 2);
     }
-    if (this.stage.vars.cameraX > this.sprites["Block"].vars.Tilemovestep * ((this.stage.vars.gridWidth-22)  - (window.innerWidth / 2))) {
-      this.stage.vars.cameraX = this.sprites["Block"].vars.Tilemovestep * ((this.stage.vars.gridWidth-22) - (window.innerWidth / 2));
-     
+    if (this.stage.vars.cameraX > this.sprites["Block"].vars.Tilemovestep * ((this.stage.vars.gridWidth - 22) - (window.innerWidth / 2))) {
+      this.stage.vars.cameraX = this.sprites["Block"].vars.Tilemovestep * ((this.stage.vars.gridWidth - 22) - (window.innerWidth / 2));
+
     }
-    if (this.stage.vars.cameraX > this.sprites["Block"].vars.Tilemovestep * ((this.stage.vars.gridWidth-32)  - (window.innerWidth / 2))) {
-      
+    if (this.stage.vars.cameraX > this.sprites["Block"].vars.Tilemovestep * ((this.stage.vars.gridWidth - 32) - (window.innerWidth / 2))) {
+
       yield* this.sprites["Generate"].whenKeyRPressed()
     }
   }
 
   *gameLoop() {
-    while (true && !this.stopExecution) {
+    while (!this.stopExecution) {
       this.stopExecution = State.getState()
       this.broadcast("Move player");
       this.broadcast("Position Tiles");
@@ -180,14 +180,14 @@ export default class Player extends Sprite {
 
   *getTileAtXY(x, y) {
     let chunk = (this.stage.vars.world)
-    this.vars.tileGridX = Math.floor(this.toNumber(x) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
-    this.vars.tileGridY = Math.floor(this.toNumber(y) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
-    this.vars.tileIndex = 1 + this.toNumber(this.vars.tileGridY) + this.toNumber(this.vars.tileGridX) * this.toNumber(this.stage.vars.gridHeight);
+    this.vars.tileGridX = Math.floor(x / (this.sprites["Block"].vars.Tilemovestep));
+    this.vars.tileGridY = Math.floor(y / (this.sprites["Block"].vars.Tilemovestep));
+    this.vars.tileIndex = 1 + this.toNumber(this.vars.tileGridY) + (this.vars.tileGridX) * (this.stage.vars.gridHeight);
     this.vars.tile = this.itemOf(this.stage.vars.grid, this.vars.tileIndex - 1);
     this.vars.tile = this.itemOf(chunk, this.vars.tileIndex - 1);
-   
+
     this.vars.costume = this.stage.vars.blockData[this.vars.tile].costume
- 
+
     this.vars.tileid = this.stage.vars.blockData[this.vars.tile].id;
     this.vars.blockname = this.stage.vars.blockData[this.vars.tile].name;
     this.vars.blocktype = this.stage.vars.blockData[this.vars.tile].type;
@@ -199,26 +199,26 @@ export default class Player extends Sprite {
     if (this.toString(this.vars.blocksolidity) === "Y") {
       this.vars.solid = 10;
       this.vars.modX =
-        this.toNumber(x) %
-        this.toNumber(this.sprites["Block"].vars.Tilemovestep);
+        (x) %
+        (this.sprites["Block"].vars.Tilemovestep);
       this.vars.modY =
-        this.toNumber(y) %
-        this.toNumber(this.sprites["Block"].vars.Tilemovestep);
-      if (this.compare(this.vars.fixDy, 0) < 0) {
+        (y) %
+        (this.sprites["Block"].vars.Tilemovestep);
+      if (this.vars.fixDy < 0) {
         this.vars.y +=
-          this.toNumber(this.sprites["Block"].vars.Tilemovestep) -
-          this.toNumber(this.vars.modY);
+          (this.sprites["Block"].vars.Tilemovestep) -
+          (this.vars.modY);
       }
-      if (this.compare(this.vars.fixDx, 0) < 0) {
+      if (this.vars.fixDx < 0) {
         this.vars.x +=
-          this.toNumber(this.sprites["Block"].vars.Tilemovestep) -
-          this.toNumber(this.vars.modX);
+          (this.sprites["Block"].vars.Tilemovestep) -
+          (this.vars.modX);
       }
-      if (this.compare(this.vars.fixDy, 0) > 0) {
-        this.vars.y += -0.01 - this.toNumber(this.vars.modY);
+      if (this.vars.fixDy > 0) {
+        this.vars.y += -0.01 - (this.vars.modY);
       }
-      if (this.compare(this.vars.fixDx, 0) > 0) {
-        this.vars.x += -0.01 - this.toNumber(this.vars.modX);
+      if (this.vars.fixDx > 0) {
+        this.vars.x += -0.01 - (this.vars.modX);
       }
     }
   }
@@ -227,14 +227,14 @@ export default class Player extends Sprite {
     this.vars.fixDx = dx;
     this.vars.fixDy = dy;
     this.vars.solid = "";
-   
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x, this.vars.y)
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x, this.vars.y-this.vars.height)
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x, this.vars.y+this.vars.height)
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x-this.vars.width, this.vars.y-this.vars.height)
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x-this.vars.width, this.vars.y+this.vars.height)
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x+this.vars.width, this.vars.y-this.vars.height)
-   this.warp(this.fixCollisionAtPointXY)(this.vars.x+this.vars.width, this.vars.y+this.vars.height)
+
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x, this.vars.y)
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x, this.vars.y - this.vars.height)
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x, this.vars.y + this.vars.height)
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x - this.vars.width, this.vars.y - this.vars.height)
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x - this.vars.width, this.vars.y + this.vars.height)
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x + this.vars.width, this.vars.y - this.vars.height)
+    this.warp(this.fixCollisionAtPointXY)(this.vars.x + this.vars.width, this.vars.y + this.vars.height)
   }
 
   *moveSpriteX() {
@@ -251,7 +251,7 @@ export default class Player extends Sprite {
         this.keyDown.right = true;
         if (now - this.lastPressTime.right < this.doublePressThreshold) {
           if (!this.keyPressHandled.right) {
-            
+
             this.doublePressActive.right = true; // Set double press state
             this.keyPressHandled.right = true; // Ensure double press is handled only once
           }
@@ -271,7 +271,7 @@ export default class Player extends Sprite {
         this.keyDown.left = true;
         if (now - this.lastPressTime.left < this.doublePressThreshold) {
           if (!this.keyPressHandled.left) {
-           
+
             this.doublePressActive.left = true; // Set double press state
             this.keyPressHandled.left = true; // Ensure double press is handled only once
           }
@@ -302,12 +302,12 @@ export default class Player extends Sprite {
 
   *handleKeysJump() {
     if (this.keyPressed("up arrow") || this.keyPressed("w")) {
-      if (this.compare(this.vars.falling, 5) < 0) {
+      if (this.vars.falling < 5) {
         this.vars.speedY = 14;
       }
     }
     this.vars.speedY -= 2;
-    if (this.compare(this.vars.speedY, -12) < 0) {
+    if (this.vars.speedY < -12) {
       this.vars.speedY = -12;
     }
   }
@@ -316,13 +316,13 @@ export default class Player extends Sprite {
     this.vars.y += this.toNumber(this.vars.speedY);
     this.vars.falling++;
     this.warp(this.fixCollisionInDirectionDxDy)(0, this.vars.speedY);
-    if (this.compare(this.vars.solid, 0) > 0) {
-      if (this.compare(this.vars.speedY, 0) < 0) {
+    if (this.vars.solid> 0) {
+      if (this.vars.speedY < 0) {
         this.vars.falling = 0;
       }
       this.vars.speedY = 0;
     }
   }
-  
-  
+
+
 }

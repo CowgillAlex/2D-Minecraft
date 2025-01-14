@@ -60,13 +60,13 @@ export default class PlayerHand extends Sprite {
       Math.atan2(this.mouse.y - this.y, this.mouse.x - this.x)
     );
     yield* this.getTileAtXY(
-      this.toNumber(this.stage.vars.cameraX) + this.mouse.x,
-      this.toNumber(this.stage.vars.cameraY) + this.mouse.y
+      (this.stage.vars.cameraX) + this.mouse.x,
+      (this.stage.vars.cameraY) + this.mouse.y
     );
     if (
       isLeftClickDown() &&
       !(
-        this.toNumber(
+        (
           this.itemOf(this.stage.vars.world, this.vars.tileIndex - 1)
         ) === "bedrock"
       )
@@ -75,7 +75,7 @@ export default class PlayerHand extends Sprite {
       this.stage.vars.world[this.vars.tileIndex - 1] = "air"
     }
     if (isRightClickDown()
-       && !(this.toNumber(this.itemOf(this.stage.vars.world, this.vars.tileIndex - 1)) === "bedrock")){
+       && !((this.itemOf(this.stage.vars.world, this.vars.tileIndex - 1)) === "bedrock")){
       this.stage.vars.world[this.vars.tileIndex-1] = "deepslate" 
     }
   }
@@ -89,9 +89,9 @@ export default class PlayerHand extends Sprite {
   *getTileAtXY(x, y) {
     
       let chunk = (this.stage.vars.world)
-      this.vars.tileGridX = Math.floor(this.toNumber(x) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
-      this.vars.tileGridY = Math.floor(this.toNumber(y) / this.toNumber(this.sprites["Block"].vars.Tilemovestep));
-      this.vars.tileIndex = 1 + this.toNumber(this.vars.tileGridY) + this.toNumber(this.vars.tileGridX) * this.toNumber(this.stage.vars.gridHeight);
+      this.vars.tileGridX = Math.floor((x) / (this.sprites["Block"].vars.Tilemovestep));
+      this.vars.tileGridY = Math.floor((y) / (this.sprites["Block"].vars.Tilemovestep));
+      this.vars.tileIndex = 1 + (this.vars.tileGridY) + (this.vars.tileGridX) * (this.stage.vars.gridHeight);
 
       try {
         this.vars.tile = this.itemOf(this.stage.vars.grid, this.vars.tileIndex - 1);
