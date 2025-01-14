@@ -103,16 +103,21 @@ export default class PlayerHand extends Sprite {
       
       try {
         this.vars.costume = this.stage.vars.blockData[this.vars.tile].costume
+        this.vars.tileid = this.stage.vars.blockData[this.vars.tile].id;
+        this.vars.blockname = this.stage.vars.blockData[this.vars.tile].name;
+        this.vars.blocktype = this.stage.vars.blockData[this.vars.tile].type;
+        this.vars.blocksolidity = this.stage.vars.blockData[this.vars.tile].solidity;
       } catch (error) {
-        throw new Error("This block: [" + (this.vars.tile || "invalid") + "] has no attributes, or it is outside the world.");
+        this.vars.costume = "Not Loaded"
+        this.vars.tileid = -1
+        this.vars.blockname = "Not Loaded"
+        this.vars.blocktype = "Unbreakable"
+        this.vars.blocksolidity = "N"
+       // throw new Error("This block: [" + (this.vars.tile || "invalid") + "] has no attributes, or it is outside the world.");
 
       }
       
    
-      this.vars.tileid = this.stage.vars.blockData[this.vars.tile].id;
-      this.vars.blockname = this.stage.vars.blockData[this.vars.tile].name;
-      this.vars.blocktype = this.stage.vars.blockData[this.vars.tile].type;
-      this.vars.blocksolidity = this.stage.vars.blockData[this.vars.tile].solidity;
     document.getElementById("selectedBlock").innerHTML = "Block: " + this.vars.blockname
     document.getElementById("selectedBlockSolidity").innerHTML = "Block Solidity: " + this.vars.blocksolidity
   }
